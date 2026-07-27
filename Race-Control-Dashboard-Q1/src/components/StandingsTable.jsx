@@ -4,7 +4,6 @@ import TabToggle from './TabToggle';
 import SearchBar from './SearchBar';
 import DriverModal from './DriverModal';
 
-// Utility helpers to extract fields across flattened or raw Ergast structures
 const getItemName = (item) =>
   item.name || (item.Driver ? `${item.Driver.givenName} ${item.Driver.familyName}` : '');
 
@@ -20,8 +19,6 @@ export default function StandingsTable({ type = 'drivers' }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  // Modal state for selected driver
   const [selectedDriver, setSelectedDriver] = useState(null);
 
   useEffect(() => {
@@ -30,7 +27,7 @@ export default function StandingsTable({ type = 'drivers' }) {
     async function fetchStandings() {
       setLoading(true);
       setError(null);
-      setSelectedDriver(null); // Clear modal selection on tab switch
+      setSelectedDriver(null);
       try {
         const data =
           activeTab === 'drivers'
@@ -58,7 +55,6 @@ export default function StandingsTable({ type = 'drivers' }) {
     };
   }, [activeTab]);
 
-  // Case-insensitive filtering against name or team
   const filteredStandings = standings.filter((item) => {
     const query = searchQuery.toLowerCase().trim();
     if (!query) return true;
@@ -69,8 +65,39 @@ export default function StandingsTable({ type = 'drivers' }) {
     return name.includes(query) || team.includes(query);
   });
 
+  // Podium distinction for Top 3
+  const renderPositionBadge = (posStr) => {
+    const pos = Number(posStr);
+    if (pos === 1) {
+      return (
+        <span className="inline-flex items-center justify-center w-6 h-6 rounded bg-race-red text-white text-xs font-extrabold font-mono shadow">
+          1
+        </span>
+      );
+    }
+    if (pos === 2) {
+      return (
+        <span className="inline-flex items-center justify-center w-6 h-6 rounded bg-race-border text-race-text text-xs font-bold font-mono">
+          2
+        </span>
+      );
+    }
+    if (pos === 3) {
+      return (
+        <span className="inline-flex items-center justify-center w-6 h-6 rounded bg-race-bg text-race-muted text-xs font-bold font-mono border border-race-border">
+          3
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center justify-center w-6 h-6 text-race-muted text-xs font-mono">
+        {posStr}
+      </span>
+    );
+  };
+
   return (
-    <div className="bg-race-card border border-race-border rounded-lg p-6 shadow-md">
+    <div className="bg-race-card border border-race-border rounded-xl p-6 shadow-xl">
       {/* Controls Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <TabToggle activeTab={activeTab} onChange={setActiveTab} />
@@ -79,14 +106,14 @@ export default function StandingsTable({ type = 'drivers' }) {
 
       {/* Loading State */}
       {loading && (
-        <div className="text-race-muted py-8 text-center text-sm font-semibold">
-          Loading...
+        <div className="text-race-muted py-12 text-center text-xs font-semibold uppercase tracking-wider animate-pulse">
+          Loading telemetry...
         </div>
       )}
 
       {/* Error State */}
       {error && !loading && (
-        <div className="text-race-red py-4 text-center text-sm font-semibold">
+        <div className="text-race-red py-6 text-center text-xs font-semibold">
           {error}
         </div>
       )}
@@ -94,21 +121,21 @@ export default function StandingsTable({ type = 'drivers' }) {
       {/* Table Display */}
       {!loading && !error && (
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-race-text">
-            <thead className="text-xs uppercase bg-race-bg text-race-muted border-b border-race-border">
+          <table className="w-full text-left text-sm text-race-text border-collapse">
+            <thead className="text-[11px] uppercase tracking-wider bg-race-bg text-race-muted border-b border-race-border">
               <tr>
-                <th className="px-4 py-3">Position</th>
+                <th className="px-4 py-3 font-semibold text-center w-12">Pos</th>
                 {activeTab === 'drivers' ? (
                   <>
-                    <th className="px-4 py-3">Name</th>
-                    <th className="px-4 py-3">Team</th>
+                    <th className="px-4 py-3 font-semibold">Driver</th>
+                    <th className="px-4 py-3 font-semibold">Team</th>
                   </>
                 ) : (
-                  <th className="px-4 py-3">Team</th>
+                  <th className="px-4 py-3 font-semibold">Team</th>
                 )}
-                <th className="px-4 py-3">Nationality</th>
-                <th className="px-4 py-3">Points</th>
-                <th className="px-4 py-3">Wins</th>
+                <th className="px-4 py-3 font-semibold">Nation</th>
+                <th className="px-4 py-3 font-semibold text-right">Pts</th>
+                <th className="px-4 py-3 font-semibold text-right">Wins</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-race-border">
@@ -119,36 +146,36 @@ export default function StandingsTable({ type = 'drivers' }) {
                     <tr
                       key={item.position || index}
                       onClick={() => isDriverTab && setSelectedDriver(item)}
-                      className={`transition-colors ${
+                      className={`transition-colors duration-150 ${
                         isDriverTab
-                          ? 'cursor-pointer hover:bg-race-border/50'
-                          : 'hover:bg-race-bg/50'
+                          ? 'cursor-pointer hover:bg-race-card-hover'
+                          : 'hover:bg-race-card-hover'
                       }`}
                     >
-                      <td className="px-4 py-3 font-bold text-race-red">
-                        {item.position}
+                      <td className="px-4 py-3.5 text-center">
+                        {renderPositionBadge(item.position)}
                       </td>
                       {isDriverTab ? (
                         <>
-                          <td className="px-4 py-3 font-medium">
+                          <td className="px-4 py-3.5 font-semibold text-race-text">
                             {getItemName(item)}
                           </td>
-                          <td className="px-4 py-3 text-race-muted">
+                          <td className="px-4 py-3.5 text-race-muted text-xs">
                             {getItemTeam(item)}
                           </td>
                         </>
                       ) : (
-                        <td className="px-4 py-3 font-medium">
+                        <td className="px-4 py-3.5 font-semibold text-race-text">
                           {getItemName(item) || getItemTeam(item)}
                         </td>
                       )}
-                      <td className="px-4 py-3 text-race-muted">
+                      <td className="px-4 py-3.5 text-race-muted text-xs">
                         {getItemNationality(item)}
                       </td>
-                      <td className="px-4 py-3 font-mono font-semibold">
+                      <td className="px-4 py-3.5 font-mono font-bold text-right text-race-text">
                         {item.points}
                       </td>
-                      <td className="px-4 py-3 font-mono text-race-muted">
+                      <td className="px-4 py-3.5 font-mono text-race-muted text-right text-xs">
                         {item.wins}
                       </td>
                     </tr>
@@ -158,9 +185,9 @@ export default function StandingsTable({ type = 'drivers' }) {
                 <tr>
                   <td
                     colSpan={activeTab === 'drivers' ? 6 : 5}
-                    className="px-4 py-6 text-center text-race-muted"
+                    className="px-4 py-8 text-center text-race-muted text-xs uppercase tracking-wider"
                   >
-                    No results found.
+                    No matching standings found
                   </td>
                 </tr>
               )}

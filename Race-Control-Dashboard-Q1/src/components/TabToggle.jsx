@@ -1,13 +1,13 @@
 export default function TabToggle({ activeTab, onChange }) {
   return (
-    <div className="flex gap-2">
+    <div className="inline-flex p-1 bg-race-bg rounded-lg border border-race-border">
       <button
         type="button"
         onClick={() => onChange('drivers')}
-        className={`px-4 py-2 text-sm font-semibold rounded border transition-colors ${
+        className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-md transition-all duration-150 ${
           activeTab === 'drivers'
-            ? 'bg-race-red text-white border-race-red'
-            : 'bg-race-card text-race-muted border-race-border hover:text-race-text'
+            ? 'bg-race-red text-white shadow-sm'
+            : 'text-race-muted hover:text-race-text'
         }`}
       >
         Drivers
@@ -15,10 +15,10 @@ export default function TabToggle({ activeTab, onChange }) {
       <button
         type="button"
         onClick={() => onChange('constructors')}
-        className={`px-4 py-2 text-sm font-semibold rounded border transition-colors ${
+        className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-md transition-all duration-150 ${
           activeTab === 'constructors'
-            ? 'bg-race-red text-white border-race-red'
-            : 'bg-race-card text-race-muted border-race-border hover:text-race-text'
+            ? 'bg-race-red text-white shadow-sm'
+            : 'text-race-muted hover:text-race-text'
         }`}
       >
         Constructors
