@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getDriverStandings, getConstructorStandings } from '../api/jolpica';
 import TabToggle from './TabToggle';
 import SearchBar from './SearchBar';
+import DriverModal from './DriverModal';
 
 // Utility helpers to extract fields across flattened or raw Ergast structures
 const getItemName = (item) =>
@@ -19,6 +20,9 @@ export default function StandingsTable({ type = 'drivers' }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Modal state for selected driver
+  const [selectedDriver, setSelectedDriver] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -26,6 +30,7 @@ export default function StandingsTable({ type = 'drivers' }) {
     async function fetchStandings() {
       setLoading(true);
       setError(null);
+      setSelectedDriver(null); // Clear modal selection on tab switch
       try {
         const data =
           activeTab === 'drivers'
@@ -108,36 +113,47 @@ export default function StandingsTable({ type = 'drivers' }) {
             </thead>
             <tbody className="divide-y divide-race-border">
               {filteredStandings.length > 0 ? (
-                filteredStandings.map((item, index) => (
-                  <tr key={item.position || index} className="hover:bg-race-bg/50">
-                    <td className="px-4 py-3 font-bold text-race-red">
-                      {item.position}
-                    </td>
-                    {activeTab === 'drivers' ? (
-                      <>
-                        <td className="px-4 py-3 font-medium">
-                          {getItemName(item)}
-                        </td>
-                        <td className="px-4 py-3 text-race-muted">
-                          {getItemTeam(item)}
-                        </td>
-                      </>
-                    ) : (
-                      <td className="px-4 py-3 font-medium">
-                        {getItemName(item) || getItemTeam(item)}
+                filteredStandings.map((item, index) => {
+                  const isDriverTab = activeTab === 'drivers';
+                  return (
+                    <tr
+                      key={item.position || index}
+                      onClick={() => isDriverTab && setSelectedDriver(item)}
+                      className={`transition-colors ${
+                        isDriverTab
+                          ? 'cursor-pointer hover:bg-race-border/50'
+                          : 'hover:bg-race-bg/50'
+                      }`}
+                    >
+                      <td className="px-4 py-3 font-bold text-race-red">
+                        {item.position}
                       </td>
-                    )}
-                    <td className="px-4 py-3 text-race-muted">
-                      {getItemNationality(item)}
-                    </td>
-                    <td className="px-4 py-3 font-mono font-semibold">
-                      {item.points}
-                    </td>
-                    <td className="px-4 py-3 font-mono text-race-muted">
-                      {item.wins}
-                    </td>
-                  </tr>
-                ))
+                      {isDriverTab ? (
+                        <>
+                          <td className="px-4 py-3 font-medium">
+                            {getItemName(item)}
+                          </td>
+                          <td className="px-4 py-3 text-race-muted">
+                            {getItemTeam(item)}
+                          </td>
+                        </>
+                      ) : (
+                        <td className="px-4 py-3 font-medium">
+                          {getItemName(item) || getItemTeam(item)}
+                        </td>
+                      )}
+                      <td className="px-4 py-3 text-race-muted">
+                        {getItemNationality(item)}
+                      </td>
+                      <td className="px-4 py-3 font-mono font-semibold">
+                        {item.points}
+                      </td>
+                      <td className="px-4 py-3 font-mono text-race-muted">
+                        {item.wins}
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
                   <td
@@ -152,6 +168,12 @@ export default function StandingsTable({ type = 'drivers' }) {
           </table>
         </div>
       )}
+
+      {/* Driver Detail Modal */}
+      <DriverModal
+        driver={selectedDriver}
+        onClose={() => setSelectedDriver(null)}
+      />
     </div>
   );
 }
