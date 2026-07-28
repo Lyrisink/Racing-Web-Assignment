@@ -65,7 +65,6 @@ export default function StandingsTable({ type = 'drivers' }) {
     return name.includes(query) || team.includes(query);
   });
 
-  // Podium distinction for Top 3
   const renderPositionBadge = (posStr) => {
     const pos = Number(posStr);
     if (pos === 1) {
@@ -97,45 +96,63 @@ export default function StandingsTable({ type = 'drivers' }) {
   };
 
   return (
-    <div className="bg-race-card border border-race-border rounded-xl p-6 shadow-xl">
-      {/* Controls Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    /* 
+     * Key fix here: md:absolute md:inset-0 locks the card strictly to 
+     * the parent grid cell height established by CircuitDetail.
+     */
+    <div className="bg-race-card border border-race-border rounded-xl p-6 shadow-xl flex flex-col h-[500px] md:h-auto md:absolute md:inset-0 min-h-0">
+      {/* Fixed Header Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 shrink-0">
         <TabToggle activeTab={activeTab} onChange={setActiveTab} />
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
       </div>
 
       {/* Loading State */}
       {loading && (
-        <div className="text-race-muted py-12 text-center text-xs font-semibold uppercase tracking-wider animate-pulse">
+        <div className="flex-1 flex items-center justify-center text-race-muted text-xs font-semibold uppercase tracking-wider animate-pulse">
           Loading telemetry...
         </div>
       )}
 
       {/* Error State */}
       {error && !loading && (
-        <div className="text-race-red py-6 text-center text-xs font-semibold">
+        <div className="flex-1 flex items-center justify-center text-race-red text-xs font-semibold">
           {error}
         </div>
       )}
 
-      {/* Table Display */}
+      {/* Internal Scroll Area */}
       {!loading && !error && (
-        <div className="overflow-x-auto">
+        <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar pr-1">
           <table className="w-full text-left text-sm text-race-text border-collapse">
-            <thead className="text-[11px] uppercase tracking-wider bg-race-bg text-race-muted border-b border-race-border">
+            <thead className="text-[11px] uppercase tracking-wider text-race-muted border-b border-race-border sticky top-0 z-10 shadow-sm">
               <tr>
-                <th className="px-4 py-3 font-semibold text-center w-12">Pos</th>
+                <th className="px-4 py-3 font-semibold text-center w-12 bg-race-bg">
+                  Pos
+                </th>
                 {activeTab === 'drivers' ? (
                   <>
-                    <th className="px-4 py-3 font-semibold">Driver</th>
-                    <th className="px-4 py-3 font-semibold">Team</th>
+                    <th className="px-4 py-3 font-semibold bg-race-bg">
+                      Driver
+                    </th>
+                    <th className="px-4 py-3 font-semibold bg-race-bg">
+                      Team
+                    </th>
                   </>
                 ) : (
-                  <th className="px-4 py-3 font-semibold">Team</th>
+                  <th className="px-4 py-3 font-semibold bg-race-bg">
+                    Team
+                  </th>
                 )}
-                <th className="px-4 py-3 font-semibold">Nation</th>
-                <th className="px-4 py-3 font-semibold text-right">Pts</th>
-                <th className="px-4 py-3 font-semibold text-right">Wins</th>
+                <th className="px-4 py-3 font-semibold bg-race-bg">
+                  Nation
+                </th>
+                <th className="px-4 py-3 font-semibold text-right bg-race-bg">
+                  Pts
+                </th>
+                <th className="px-4 py-3 font-semibold text-right bg-race-bg">
+                  Wins
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-race-border">

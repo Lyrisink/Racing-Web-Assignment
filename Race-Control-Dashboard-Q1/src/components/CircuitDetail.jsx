@@ -35,7 +35,6 @@ export default function CircuitDetail() {
     };
   }, []);
 
-  // Format ISO date string into readable format (e.g., "24 August 2026")
   const formatDate = (dateString) => {
     if (!dateString) return 'TBD';
     const date = new Date(dateString);
@@ -51,7 +50,7 @@ export default function CircuitDetail() {
     : false;
 
   return (
-    <div className="bg-race-card border border-race-border rounded-xl p-6 shadow-xl flex flex-col justify-between h-full">
+    <div className="bg-race-card border border-race-border rounded-xl p-6 shadow-xl space-y-6">
       {/* Loading State */}
       {loading && (
         <div className="text-race-muted py-12 text-center text-xs font-semibold uppercase tracking-wider animate-pulse">
@@ -68,7 +67,7 @@ export default function CircuitDetail() {
 
       {/* Circuit Content */}
       {!loading && !error && meeting && (
-        <div className="space-y-6">
+        <>
           {/* Header & Status Badge */}
           <div>
             <span className="inline-block px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-widest rounded bg-race-red/10 text-race-red border border-race-red/20 mb-3">
@@ -110,7 +109,7 @@ export default function CircuitDetail() {
               Circuit Track Layout
             </span>
           </div>
-        </div>
+        </>
       )}
 
       {!loading && !error && !meeting && (
