@@ -32,7 +32,6 @@ export default function Hero() {
   return (
     <section className="relative w-full h-screen border-b border-race-border overflow-hidden">
       
-      {/* Background Images */}
       <div className="absolute inset-0 z-0 bg-race-bg">
         {backgrounds.map((bg, index) => (
           <div
@@ -45,7 +44,6 @@ export default function Hero() {
         ))}
       </div>
 
-      {/* Symmetrical Dark Overlay */}
       <div 
         className="absolute inset-0 z-10 bg-black/40"
         style={{
@@ -53,13 +51,12 @@ export default function Hero() {
         }}
       />
 
-      {/* Content strictly fitted inside 100vh */}
       <div className="relative z-20 max-w-7xl w-full mx-auto px-4 md:px-8 flex flex-col h-full overflow-hidden">
         
         <HeaderBar />
         
-        {/* Evenly distributed content stack */}
-        <div className="flex-1 flex flex-col justify-evenly items-center py-2 w-full overflow-hidden">
+        {/* Adjusted padding-bottom (pb-12 md:pb-20) to shift the evenly-spaced cluster higher up the screen */}
+        <div className="flex-1 flex flex-col justify-evenly items-center pt-2 pb-12 md:pb-20 w-full overflow-hidden">
           <TitleBlock />
           <CircuitCountdown />
           <RaceCarousel />
