@@ -2,15 +2,15 @@ import { useState, useEffect, useCallback } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { getRaceSchedule } from '../api/jolpica';
 import RaceCard from './RaceCard';
-import SessionScheduleModal from './SessionScheduleModal'; // Import new modal
+import SessionScheduleModal from './SessionScheduleModal';
 
 export default function RaceCarousel() {
   const [races, setRaces] = useState([]);
+  const [currentRound, setCurrentRound] = useState(null); // Tracks current upcoming race round
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [initialCenterIndex, setInitialCenterIndex] = useState(0);
   
-  // Track which race's modal is currently open
   const [modalRace, setModalRace] = useState(null);
 
   useEffect(() => {
@@ -21,6 +21,9 @@ export default function RaceCarousel() {
         
         let centerIdx = schedule.findIndex(r => new Date(r.date) >= now);
         if (centerIdx === -1) centerIdx = schedule.length - 1; 
+
+        // Store the official round number of the current/next race
+        setCurrentRound(schedule[centerIdx].round);
 
         let start = Math.max(0, centerIdx - 2);
         let end = Math.min(schedule.length - 1, start + 4);
@@ -51,15 +54,19 @@ export default function RaceCarousel() {
 
   return (
     <>
-      <CarouselView races={races} initialCenterIndex={initialCenterIndex} onOpenModal={setModalRace} />
+      <CarouselView 
+        races={races} 
+        currentRound={currentRound} 
+        initialCenterIndex={initialCenterIndex} 
+        onOpenModal={setModalRace} 
+      />
       
-      {/* Modals are rendered here so they overlay the entire viewport correctly */}
       <SessionScheduleModal race={modalRace} onClose={() => setModalRace(null)} />
     </>
   );
 }
 
-function CarouselView({ races, initialCenterIndex, onOpenModal }) {
+function CarouselView({ races, currentRound, initialCenterIndex, onOpenModal }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     align: 'center', 
     containScroll: false,
@@ -78,27 +85,21 @@ function CarouselView({ races, initialCenterIndex, onOpenModal }) {
   const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
 
-  // Click Handler with Drag-Protection
   const handleCardClick = useCallback((index, race) => {
     if (!emblaApi) return;
-    
-    // Safety check: Embla provides .clickAllowed() on older versions. 
-    // Embla v8+ cancels clicks natively, but this provides foolproof backward compatibility.
     if (typeof emblaApi.clickAllowed === 'function' && !emblaApi.clickAllowed()) return;
 
     if (index === selectedIndex) {
-      // If centered card is clicked, open the session modal
       onOpenModal(race);
     } else {
-      // If an off-center card is clicked, smoothly scroll it into focus
       emblaApi.scrollTo(index);
     }
   }, [emblaApi, selectedIndex, onOpenModal]);
 
   return (
     <div className="relative w-full max-w-7xl mx-auto group">
-      <div className="overflow-hidden py-1" ref={emblaRef}>
-        {/* Height bumped slightly to accommodate the CTA button cleanly */}
+      {/* Changed py-1 to py-3 so the top badge has breathing room */}
+      <div className="overflow-hidden py-3" ref={emblaRef}>
         <div className="flex touch-pan-y h-40 md:h-48">
           {races.map((race, index) => (
             <div 
@@ -106,7 +107,11 @@ function CarouselView({ races, initialCenterIndex, onOpenModal }) {
               className="flex-[0_0_80%] md:flex-[0_0_42%] min-w-0 cursor-pointer"
               onClick={() => handleCardClick(index, race)}
             >
-              <RaceCard race={race} isCenter={index === selectedIndex} />
+              <RaceCard 
+                race={race} 
+                isCenter={index === selectedIndex} 
+                isCurrent={race.round === currentRound}
+              />
             </div>
           ))}
         </div>
