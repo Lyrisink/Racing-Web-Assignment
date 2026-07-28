@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import HeaderBar from './HeaderBar';
 import TitleBlock from './TitleBlock';
+import CircuitCountdown from './CircuitCountdown';
 
 // Import all 5 background images
 import bg1 from '../assets/hero-bg-1.jpg';
@@ -52,28 +53,33 @@ export default function Hero() {
         ))}
       </div>
 
-      {/* Layer 2: The Dark Overlay Gradient
-        This sits completely separate above the crossfading images, unaffected by the transitions.
+      {/* Layer 2: Symmetrical Dark Overlay
+        Removed the heavy left-to-right gradient. Added a uniform semi-transparent
+        black overlay so the centered text remains readable across all images, 
+        and kept the bottom gradient to blend smoothly into the section below.
       */}
       <div 
-        className="absolute inset-0 z-10"
+        className="absolute inset-0 z-10 bg-black/40"
         style={{
-          backgroundImage: `
-            linear-gradient(to right, var(--color-race-bg) 15%, transparent 100%),
-            linear-gradient(to top, var(--color-race-bg) 0%, transparent 30%)
-          `
+          backgroundImage: `linear-gradient(to top, var(--color-race-bg) 0%, transparent 30%)`
         }}
       />
 
       {/* Layer 3: The Content
         Elevated with z-20 to ensure it's on top of both the images and the overlay.
+        Now uses min-h-screen to fill the entire viewport.
       */}
-      <div className="relative z-20 max-w-7xl mx-auto px-4 md:px-8 flex flex-col min-h-[400px]">
+      <div className="relative z-20 max-w-7xl w-full mx-auto px-4 md:px-8 flex flex-col min-h-screen">
+        
+        {/* Top anchored HeaderBar */}
         <HeaderBar />
         
-        <div className="flex-1 flex flex-col justify-center">
+        {/* Vertically centered main content area */}
+        <div className="flex-1 flex flex-col justify-center pb-12 md:pb-16">
           <TitleBlock />
+          <CircuitCountdown />
         </div>
+
       </div>
     </section>
   );
