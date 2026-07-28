@@ -3,6 +3,7 @@ import HeaderBar from './HeaderBar';
 import TitleBlock from './TitleBlock';
 import CircuitCountdown from './CircuitCountdown';
 import RaceCarousel from './RaceCarousel';
+import ScrollButton from './ScrollButton';
 
 import bg1 from '../assets/hero-bg-1.jpg';
 import bg2 from '../assets/hero-bg-2.jpg';
@@ -55,13 +56,15 @@ export default function Hero() {
         
         <HeaderBar />
         
-        {/* Adjusted padding-bottom (pb-12 md:pb-20) to shift the evenly-spaced cluster higher up the screen */}
+        {/* Evenly distributed content stack */}
         <div className="flex-1 flex flex-col justify-evenly items-center pt-2 pb-12 md:pb-20 w-full overflow-hidden">
           <TitleBlock />
           <CircuitCountdown />
           <RaceCarousel />
         </div>
 
+        {/* Anchored independently to the bottom of the Hero section */}
+        <ScrollButton />
       </div>
     </section>
   );
